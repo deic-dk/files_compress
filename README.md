@@ -2,7 +2,5 @@
 Place this app in **owncloud/apps/**
 
 
-## Running tests
-After [Installing PHPUnit](http://phpunit.de/getting-started.html) run:
-
-    phpunit tests/
+## For RAR Archives
+http://php.net/manual/en/rar.installation.php
