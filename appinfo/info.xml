@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<info>
+    <id>files_compress</id>
+    <name>Files Compress</name>
+    <description>Unpack all kinds of Archives</description>
+    <licence>AGPL</licence>
+    <author>Rasmus Jones</author>
+    <version>0.0.1</version>
+    <requiremin>7</requiremin>
+    <category>Tools</category>
+</info>
