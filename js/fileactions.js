@@ -17,7 +17,7 @@
         /**
          * Extract Ajax call to files_compress/ajax/extract.php
          * @param parent filename
-         * @param parent filename
+         * @param parent context
          */
         extract: function(filename, context) {
             var dir = context.dir || context.fileList.getCurrentDirectory();
