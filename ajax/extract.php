@@ -23,8 +23,6 @@ function readDirectory($path) {
 	}
 } 
 
-//require_once __DIR__ . '/../../../../../lib/base.php';
-
 OCP\JSON::checkLoggedIn();
 
 if(OCP\App::isEnabled('files_compress')){

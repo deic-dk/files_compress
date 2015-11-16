@@ -2,7 +2,7 @@
 <info>
     <id>files_compress</id>
     <name>Files Compress</name>
-    <description>Unpack all kinds of Archives</description>
+    <description>Unpack all kinds of archives</description>
     <licence>AGPL</licence>
     <author>Rasmus Jones</author>
     <version>0.0.1</version>

@@ -5,13 +5,11 @@
  * This file is licensed under the Affero General Public License version 3
  * or later.
  *
- *
- * This file contains calls to register the MIME types for decompression
- * and the extraction call itself. Moved over from DeiC OC7 theme. 
- * Not functional yet (11/11/15)
+ * This file contains the extraction call itself. Moved over from DeiC OC7 theme. 
+ * Not functional yet (16/11/2015)
  */
  
-(function() {
+ (function() {
 
 
         /**
@@ -46,19 +44,3 @@
 
 );
 
-this.register('application/zip', 'Extract', OC.PERMISSION_READ, '',
-    function(filename, context) {
-        context.fileActions.extract(filename, context)
-    });
-this.register('application/x-gzip', 'Extract', OC.PERMISSION_READ, '',
-    function(filename, context) {
-        context.fileActions.extract(filename, context)
-    });
-this.register('application/x-rar-compressed', 'Extract', OC.PERMISSION_READ, '',
-    function(filename, context) {
-        context.fileActions.extract(filename, context)
-    });
-this.register('application/x-compressed', 'Extract', OC.PERMISSION_READ, '',
-    function(filename, context) {
-        context.fileActions.extract(filename, context)
-    });
