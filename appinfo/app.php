@@ -5,12 +5,13 @@
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
  *
- * @author Rasmus Jones <s124632@student.dtu.dk>
- * @author Lars Næsbye Christensen <lanac@dtu.dk>
- * @copyright Rasmus Jones 2015
+ * @author Lars Næsbye Christensen (lars.christensen@deic.dk)
+ * 
  */
 
 namespace OCA\FilesCompress\AppInfo;
 
-\OCP\Util::addScript('files_compress', 'fileactions');
+	if(\OCP\User::isLoggedIn() ){
+		\OCP\Util::addScript('files_compress', 'fileactions');
+}
 

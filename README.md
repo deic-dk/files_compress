@@ -9,3 +9,9 @@ Place the app in **owncloud/apps/**
 ## To handle RAR archives
 http://php.net/manual/en/rar.installation.php
 
+## TODO
+
+Separate completely from files app
+
+Add compression in addition to the decompression
+

@@ -5,19 +5,12 @@
  * This file is licensed under the Affero General Public License version 3
  * or later.
  *
- * This file contains the extraction call itself. Moved over from DeiC OC7 theme. 
- * Not functional yet (16/11/2015)
  */
  
- (function() {
+(function() {
 
 
-        /**
-         * Extract Ajax call to files_compress/ajax/extract.php
-         * @param parent filename
-         * @param parent context
-         */
-        extract: function(filename, context) {
+        function extract (filename, context) {
             var dir = context.dir || context.fileList.getCurrentDirectory();
             $.ajax(OC.linkTo('files_compress', 'ajax/extract.php'), {
                 type: 'POST',
@@ -34,13 +27,28 @@
                     }
                 },
                 error: function(s) {
-                    alert('Error');
+                    alert('An error occurred.');
                 }
             });
         }
 
+                        this.register('application/zip', 'Extract', OC.PERMISSION_READ, '',
+                                function (filename, context) {
+                                        context.fileActions.extract(filename, context)
+                                });
+                        this.register('application/x-gzip', 'Extract', OC.PERMISSION_READ, '',
+                                function (filename, context) {
+                                        context.fileActions.extract(filename, context)
+                                });
+                        this.register('application/x-rar-compressed', 'Extract', OC.PERMISSION_READ, '',
+                                function (filename, context) {
+                                        context.fileActions.extract(filename, context)
+                                });
+                        this.register('application/x-compressed', 'Extract', OC.PERMISSION_READ, '',
+                                function (filename, context) {
+                                        context.fileActions.extract(filename, context)
+                                });
 
-    }
 
-);
+})
 
