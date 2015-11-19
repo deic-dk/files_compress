@@ -4,13 +4,13 @@ function readDirectory($path) {
 	if ($handle = opendir($path)) {
 		$tree = [];
 	    while (false !== ($entry = readdir($handle))) {
-	    	if(!($entry==="." || $entry==="..")){
-	    		if(is_dir($path.$entry)){
+	    	if (!($entry==="." || $entry==="..")){
+	    		if (is_dir($path.$entry)){
 	    			$array['dir'] = true;
 	    			$array['name'] = $entry;
 	    			$array['entry'] = readDirectory($path.$entry."/");
 	    			array_push($tree, $array);
-	    		}else{
+	    		} else {
 	    			$array['dir'] = false;
 	    			$array['name'] = $entry;
 	    			array_push($tree, $array);
@@ -25,7 +25,7 @@ function readDirectory($path) {
 
 OCP\JSON::checkLoggedIn();
 
-if(OCP\App::isEnabled('files_compress')){
+if (OCP\App::isEnabled('files_compress')){
 	$filename	= $_POST["filename"];
 	$dir	= $_POST["dir"];
 	$user 	= \OCP\USER::getUser();
@@ -38,17 +38,17 @@ if(OCP\App::isEnabled('files_compress')){
 	$extract_dir = $archive_dir.$filenameWOext."/";
 
 	$success = FALSE;
-	if($mime==='zip' || $mime==='gz' || $mime==='tgz' || $mime==='tar' || $mime==='bz2'){
+	if ($mime==='zip' || $mime==='gz' || $mime==='tgz' || $mime==='tar' || $mime==='bz2'){
 		$phar = new PharData($archive_dir.$filename);
 		if ($phar->extractTo($extract_dir, null, true)) {
 			$tree = readDirectory($extract_dir);
 		    $success = TRUE;
 		}
-	}elseif($mime==='rar'){
+	} elseif ($mime==='rar'){
 		$rar_file = rar_open($archive_dir.$filename);
-		if($rar_file){				 
+		if ($rar_file){				 
 			$list = rar_list($rar_file);
-			foreach($list as $file) {
+			foreach ($list as $file) {
 			    $entry = rar_entry_get($rar_file, $file);
 			    $entry->extract($extract_dir);
 			}
@@ -60,8 +60,8 @@ if(OCP\App::isEnabled('files_compress')){
 
 	if ($success) {
 		OCP\JSON::success(array("data" => array('filename' => $filename, 'archivedir' => $archive_dir, 'dir' => $dir, 'user' => $user, 'mime' => $mime, 'workingdir' => getcwd())));
-		//OCP\JSON::success(array("data" => array('tree' => $tree)));
 	} else {
 		OCP\JSON::error(array("data" => array('filename' => $filename, 'archivedir' => $archive_dir, 'dir' => $dir, 'user' => $user, 'mime' => $mime, 'workingdir' => getcwd())));
 	}
 }
+
