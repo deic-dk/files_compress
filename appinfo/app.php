@@ -9,9 +9,11 @@
  * 
  */
 
-namespace OCA\FilesCompress\AppInfo;
+
+// Include our class of library functions
+OC::$CLASSPATH['OC_Files_Archive_Util'] ='apps/files_compress/lib/archiveutils.php';
 
 	if(\OCP\User::isLoggedIn() ){
-		\OCP\Util::addScript('files_compress', 'fileactions');
+		\OCP\Util::addScript('files_compress', 'fileactions'); // load our actions script
 }
 

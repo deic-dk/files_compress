@@ -1,28 +1,5 @@
 <?php
 
-function readDirectory($path) {
-	if ($handle = opendir($path)) {
-		$tree = [];
-	    while (false !== ($entry = readdir($handle))) {
-	    	if (!($entry==="." || $entry==="..")){
-	    		if (is_dir($path.$entry)){
-	    			$array['dir'] = true;
-	    			$array['name'] = $entry;
-	    			$array['entry'] = readDirectory($path.$entry."/");
-	    			array_push($tree, $array);
-	    		} else {
-	    			$array['dir'] = false;
-	    			$array['name'] = $entry;
-	    			array_push($tree, $array);
-	    		}
-	    		unset($array);
-	    	}
-	    }
-	    closedir($handle);
-	    return $tree;
-	}
-} 
-
 OCP\JSON::checkLoggedIn();
 
 if (OCP\App::isEnabled('files_compress')){
@@ -41,7 +18,7 @@ if (OCP\App::isEnabled('files_compress')){
 	if ($mime==='zip' || $mime==='gz' || $mime==='tgz' || $mime==='tar' || $mime==='bz2'){
 		$phar = new PharData($archive_dir.$filename);
 		if ($phar->extractTo($extract_dir, null, true)) {
-			$tree = readDirectory($extract_dir);
+			$tree = OC_Files_Archive_Util::readDirectory($extract_dir);
 		    $success = TRUE;
 		}
 	} elseif ($mime==='rar'){
