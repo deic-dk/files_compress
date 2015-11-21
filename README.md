@@ -1,17 +1,10 @@
 # files_compress
-An Owncloud app for expanding archive files (zip, gz, tar, bz2, rar).
+An app for expanding archive files within Owncloud.
 
-The app adds an Extract function for files with one of the appropriate extensions.
+This app adds an Extract function for files with one of the appropriate extensions (zip, gz, tar, bz2, rar). This function is accessed from the list of file actions.
 
-## Installation
-Place the app in **owncloud/apps/**
+## Install
+Copy the app to **owncloud/apps/**
 
-## To handle RAR archives
-http://php.net/manual/en/rar.installation.php
-
-## TODO
-
-Separate completely from files app
-
-Add compression in addition to the decompression
-
+### To handle RAR archives
+Go to http://php.net/manual/en/rar.installation.php for instructions on installation of RAR support
