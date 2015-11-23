@@ -20,5 +20,25 @@
 	});
 }
 
+$(document).ready(function() {
+    if (typeof FileActions !== 'undefined') {
 
+        FileActions.register('application/zip', 'Extract', OC.PERMISSION_READ, '',
+            function(filename, context) {
+                expand(filename, context)
+            });
+        FileActions.register('application/x-gzip', 'Extract', OC.PERMISSION_READ, '',
+            function(filename, context) {
+                expand(filename, context)
+            });
+        FileActions.register('application/x-rar-compressed', 'Extract', OC.PERMISSION_READ, '',
+            function(filename, context) {
+                expand(filename, context)
+            });
+        FileActions.register('application/x-compressed', 'Extract', OC.PERMISSION_READ, '',
+            function(filename, context) {
+                expand(filename, context)
+            });
+    }
+});
 
