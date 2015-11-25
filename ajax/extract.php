@@ -1,3 +1,5 @@
+<?php
+
 /*                                                                                                                                
  * files_compress, ownCloud file decompression app 
  *                                                                                                                                 
@@ -16,8 +18,6 @@
  *                                                                                                                                  
  */  
 
-<?php
-
 OCP\JSON::checkLoggedIn();
 
 if (OCP\App::isEnabled('files_compress')){
@@ -35,7 +35,7 @@ if (OCP\App::isEnabled('files_compress')){
 	$success = FALSE;
 	if ($mime==='zip' || $mime==='gz' || $mime==='tgz' || $mime==='tar' || $mime==='bz2'){
 		$phar = new PharData($archive_dir.$filename);
-		if ($phar->extractTo($extract_dir, null, true)) {
+		if ($phar->extractTo($extract_dir, null, true)) { 
 			$tree = OC_Files_Archive_Util::readDirectory($extract_dir);
 		    $success = TRUE;
 		}
@@ -55,7 +55,8 @@ if (OCP\App::isEnabled('files_compress')){
 
 	if ($success) {
 		OCP\JSON::success(array("data" => array('filename' => $filename, 'archivedir' => $archive_dir, 'dir' => $dir, 'user' => $user, 'mime' => $mime, 'workingdir' => getcwd())));
-	} else {
+	} 
+            else {
 		OCP\JSON::error(array("data" => array('filename' => $filename, 'archivedir' => $archive_dir, 'dir' => $dir, 'user' => $user, 'mime' => $mime, 'workingdir' => getcwd())));
 	}
 }

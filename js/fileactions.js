@@ -27,15 +27,14 @@
                 dataType: 'json',
                 success: function(s) {
                     if (s.status == "success") { 
-                       // alert('Extraction was successful.');
-                    } else {
+                     location.reload(); 
+
+                   } else {
                         alert('Could not extract.');
                     }
-                    location.reload();
                 },
                 error: function(s) {
                     alert('An error occurred.');
-                    location.reload();
                 },
 	});
 }

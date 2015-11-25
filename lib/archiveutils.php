@@ -1,3 +1,5 @@
+<?php
+
 /*                                                                                                                                
  * files_compress, ownCloud file decompression app 
  *                                                                                                                                 
@@ -16,8 +18,6 @@
  *                                                                                                                                  
  */  
 
-<?php
-
 class OC_Files_Archive_Util {
 
 public static function readDirectory($path) {
@@ -28,7 +28,7 @@ public static function readDirectory($path) {
 	    		if (is_dir($path.$entry)){
 	    			$array['dir'] = true;
 	    			$array['name'] = $entry;
-	    			$array['entry'] = readDirectory($path.$entry."/");
+	    			$array['entry'] = self::readDirectory($path.$entry."/");
 	    			array_push($tree, $array);
 	    		} else {
 	    			$array['dir'] = false;
@@ -42,7 +42,6 @@ public static function readDirectory($path) {
 	    return $tree;
 	}
 } 
-
 
 }
 

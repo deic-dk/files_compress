@@ -1,3 +1,5 @@
+<?php
+
 /*                                                                                                                                
  * files_compress, ownCloud file decompression app 
  *                                                                                                                                 
@@ -14,9 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public                                                                 
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.                                                    
  *                                                                                                                                  
- */  
-
-<?php
+ */ 
 
 // Include our class of library functions
 OC::$CLASSPATH['OC_Files_Archive_Util'] ='apps/files_compress/lib/archiveutils.php';
