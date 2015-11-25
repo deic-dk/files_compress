@@ -27,8 +27,7 @@
                 dataType: 'json',
                 success: function(s) {
                     if (s.status == "success") { 
-                     location.reload(); 
-
+			FileList.reload();
                    } else {
                         alert('Could not extract.');
                     }
