@@ -36,7 +36,7 @@ if (OCP\App::isEnabled('files_compress')){
 	if ($mime==='zip' || $mime==='gz' || $mime==='tgz' || $mime==='tar' || $mime==='bz2'){
 		$phar = new PharData($archive_dir.$filename);
 		if ($phar->extractTo($extract_dir, null, true)) { 
-			$tree = OC_Files_Archive_Util::readDirectory($extract_dir);
+		//	$tree = OC_Files_Archive_Util::readDirectory($extract_dir);
 		    $success = TRUE;
 		}
 	} elseif ($mime==='rar'){

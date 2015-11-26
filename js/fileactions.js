@@ -16,7 +16,7 @@
  *                                                                                                                                  
  */  
 
-        function files_mv_expand (filename, context) {
+        function files_compress_expand (filename, context) {
             var dir = context.dir || context.fileList.getCurrentDirectory();
             $.ajax(OC.linkTo('files_compress', 'ajax/extract.php'), {
                 type: 'POST',
@@ -27,7 +27,7 @@
                 dataType: 'json',
                 success: function(s) {
                     if (s.status == "success") { 
-			FileList.reload();
+					FileList.reload();
                    } else {
                         alert('Could not extract.');
                     }
@@ -38,25 +38,54 @@
 	});
 }
 
+        function files_compress_compress (filename, context) {
+            var dir = context.dir || context.fileList.getCurrentDirectory();
+            $.ajax(OC.linkTo('files_compress', 'ajax/compress.php'), {
+                type: 'POST',
+                data: {
+                    filename: filename,
+                    dir: dir
+                },
+                dataType: 'json',
+                success: function(s) {
+                    if (s.status == "success") { 
+					FileList.reload();
+                   } else {
+                        alert('Could not compress.');
+                    }
+                },
+                error: function(s) {
+                    alert('An error occurred.');
+                },
+	});
+}
+
+
 $(document).ready(function() {
     if (typeof FileActions !== 'undefined') {
 
         FileActions.register('application/zip', 'Extract', OC.PERMISSION_READ, '',
             function(filename, context) {
-                files_mv_expand(filename, context)
+                files_compress_expand(filename, context)
             });
         FileActions.register('application/x-gzip', 'Extract', OC.PERMISSION_READ, '',
             function(filename, context) {
-                files_mv_expand(filename, context)
+                files_compress_expand(filename, context)
             });
         FileActions.register('application/x-rar-compressed', 'Extract', OC.PERMISSION_READ, '',
             function(filename, context) {
-                files_mv_expand(filename, context)
+                files_compress_expand(filename, context)
             });
         FileActions.register('application/x-compressed', 'Extract', OC.PERMISSION_READ, '',
             function(filename, context) {
-                files_mv_expand(filename, context)
+                files_compress_expand(filename, context)
             });
+            
+        FileActions.register('dir', 'Compress', OC.PERMISSION_READ, '',
+            function(filename, context) {
+                files_compress_compress(filename, context)
+            });
+            
     }
 });
 

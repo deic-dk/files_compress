@@ -16,13 +16,40 @@
  * You should have received a copy of the GNU Lesser General Public                                                                 
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.                                                    
  *                                                                                                                                  
- */ 
+ */  
 
-// Include our class of library functions
-OC::$CLASSPATH['OC_Files_Archive_Util'] ='apps/files_compress/lib/archiveutils.php';
+OCP\JSON::checkLoggedIn();
 
-// Load our scripts
-	if(\OCP\User::isLoggedIn() ){
-		\OCP\Util::addScript('files_compress', 'fileactions'); 
+if (OCP\App::isEnabled('files_compress')){
+	$filename	= $_POST["filename"];
+	$dir	= $_POST["dir"];
+	$user 	= \OCP\USER::getUser();
+	$tank_dir="/tank/data/owncloud/";
+
+
+	$filenameWOext= strtolower(pathinfo($filename, PATHINFO_FILENAME));
+
+	$archive_dir = $tank_dir.$user."/files".$dir."/";
+	$extract_dir = $archive_dir.$filename;
+        $tarfile = $extract_dir.'.tar';
+
+	$success = FALSE;
+
+		$phar = new PharData($tarfile);
+		if ($phar->buildFromDirectory($extract_dir)) { 
+                    $phar->compress(Phar::GZ);
+                    if (file_exists($tarfile)) {
+        unlink($tarfile); } //delete the intermediate file
+
+		    $success = TRUE;
+		}
+	
+
+	if ($success) {
+		OCP\JSON::success(array("data" => array('filename' => $filename, 'archivedir' => $archive_dir, 'dir' => $dir, 'user' => $user, 'mime' => $mime, 'workingdir' => getcwd())));
+	} 
+            else {
+		OCP\JSON::error(array("data" => array('filename' => $filename, 'archivedir' => $archive_dir, 'dir' => $dir, 'user' => $user, 'mime' => $mime, 'workingdir' => getcwd())));
+	}
 }
 
