@@ -2,11 +2,14 @@
 <info>
     <id>files_compress</id>
     <name>Files Compress</name>
-    <description>Unpack all kinds of archives</description>
+    <description>Archive compression and decompression</description>
     <licence>AGPL</licence>
     <author>Lars Næsbye Christensen</author>
     <version>0.0.1</version>
     <requiremin>7</requiremin>
-    <category>Tools</category>
+    <category>tools</category>
+    <types>
+        <filesystem/>
+    </types>
 </info>
 

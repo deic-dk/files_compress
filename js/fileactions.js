@@ -1,5 +1,5 @@
 /*                                                                                                                                
- * files_compress, ownCloud file decompression app 
+ * files_compress, ownCloud archive handling app 
  *                                                                                                                                 
  * This library is free software; you can redistribute it and/or                                                                    
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE                                                               
@@ -64,24 +64,24 @@
 $(document).ready(function() {
     if (typeof FileActions !== 'undefined') {
 
-        FileActions.register('application/zip', 'Extract', OC.PERMISSION_READ, '',
+        FileActions.register('application/zip', t('files_compress','Extract'), OC.PERMISSION_READ, '',
             function(filename, context) {
                 files_compress_expand(filename, context)
             });
-        FileActions.register('application/x-gzip', 'Extract', OC.PERMISSION_READ, '',
+        FileActions.register('application/x-gzip', t('files_compress','Extract'), OC.PERMISSION_READ, '',
             function(filename, context) {
                 files_compress_expand(filename, context)
             });
-        FileActions.register('application/x-rar-compressed', 'Extract', OC.PERMISSION_READ, '',
+        FileActions.register('application/x-rar-compressed', t('files_compress','Extract'), OC.PERMISSION_READ, '',
             function(filename, context) {
                 files_compress_expand(filename, context)
             });
-        FileActions.register('application/x-compressed', 'Extract', OC.PERMISSION_READ, '',
+        FileActions.register('application/x-compressed', t('files_compress','Extract'), OC.PERMISSION_READ, '',
             function(filename, context) {
                 files_compress_expand(filename, context)
             });
             
-        FileActions.register('dir', 'Compress', OC.PERMISSION_READ, '',
+        FileActions.register('all', t('files_compress','Compress'), OC.PERMISSION_READ, OC.imagePath('core','actions/play'),
             function(filename, context) {
                 files_compress_compress(filename, context)
             });

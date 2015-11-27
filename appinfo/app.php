@@ -1,7 +1,7 @@
 <?php
 
 /*                                                                                                                                
- * files_compress, ownCloud file decompression app 
+ * files_compress, ownCloud archive handling app 
  *                                                                                                                                 
  * This library is free software; you can redistribute it and/or                                                                    
  * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE                                                               
@@ -16,13 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public                                                                 
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.                                                    
  *                                                                                                                                  
- */ 
+ */
 
-// Include our class of library functions
-OC::$CLASSPATH['OC_Files_Archive_Util'] ='apps/files_compress/lib/archiveutils.php';
-
-// Load our scripts
-	if(\OCP\User::isLoggedIn() ){
-		\OCP\Util::addScript('files_compress', 'fileactions'); 
+// Load our fileactions script
+if (\OCP\User::isLoggedIn()) {
+    \OCP\Util::addScript('files_compress', 'fileactions');
 }
 

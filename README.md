@@ -1,7 +1,10 @@
 # files_compress
-An app for expanding archive files within Owncloud.
 
-This app adds an Extract function for files with one of the appropriate extensions (zip, gz, tar, bz2, rar). This function is accessed from the list of file actions.
+An app for handling archive files within Owncloud.
+
+This app adds an Extract function for files with one of the appropriate extensions (zip, gz, tar, bz2, rar), and a Compress function for others.
+
+These functions are accessed from the usual list of file actions.
 
 ## Install
 Copy the app to **owncloud/apps/**
