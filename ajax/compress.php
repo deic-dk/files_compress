@@ -1,4 +1,4 @@
-<?php
+ <?php
 
 /*
  * files_compress, ownCloud archive handling app
@@ -54,10 +54,15 @@ if (OCP\App::isEnabled('files_compress')) {
     // move everything in place
     rename($tempfile, $tarfile);
     
-    // cleanup by deleting tarfile and temp directory
-    if (file_exists($temp_dir . $filename . '.tar.gz')) {
-        unlink($temp_dir . $filename . '.tar.gz');
+    // cleanup by deleting all files and temp directory
+    
+    $files = glob($temp_dir . '{,.}*', GLOB_BRACE);
+    foreach ($files as $file) { // iterate files
+        if (is_file($file)) {
+            unlink($file);
+        } // delete file
     }
+    
     if (file_exists($temp_dir)) {
         rmdir($temp_dir);
     }
