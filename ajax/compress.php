@@ -1,4 +1,4 @@
- <?php
+<?php
 
 /*
  * files_compress, ownCloud archive handling app
