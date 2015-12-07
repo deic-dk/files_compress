@@ -27,7 +27,7 @@
                 dataType: 'json',
                 success: function(s) {
                     if (s.status == "success") { 
-					FileList.reload();
+			FileList.reload();
                    } else {
                         alert('Could not extract.');
                     }
@@ -49,7 +49,7 @@
                 dataType: 'json',
                 success: function(s) {
                     if (s.status == "success") { 
-					FileList.reload();
+			FileList.reload();
                    } else {
                         alert('Could not compress.');
                     }
@@ -72,16 +72,12 @@ $(document).ready(function() {
             function(filename, context) {
                 files_compress_expand(filename, context)
             });
-        FileActions.register('application/x-rar-compressed', t('files_compress','Extract'), OC.PERMISSION_READ, '',
-            function(filename, context) {
-                files_compress_expand(filename, context)
-            });
         FileActions.register('application/x-compressed', t('files_compress','Extract'), OC.PERMISSION_READ, '',
             function(filename, context) {
                 files_compress_expand(filename, context)
             });
             
-        FileActions.register('all', t('files_compress','Compress'), OC.PERMISSION_READ, OC.imagePath('core','actions/play'),
+        FileActions.register('all', t('files_compress','Compress'), OC.PERMISSION_READ, '',
             function(filename, context) {
                 files_compress_compress(filename, context)
             });

@@ -1,21 +1,21 @@
 <?php
 
-/*                                                                                                                                
- * files_compress, ownCloud archive handling app 
- *                                                                                                                                 
- * This library is free software; you can redistribute it and/or                                                                    
- * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE                                                               
- * License as published by the Free Software Foundation; either                                                                     
- * version 3 of the License, or any later version.                                                                                  
- *                                                                                                                                  
- * This library is distributed in the hope that it will be useful,                                                                  
- * but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                   
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                                                                    
- * GNU AFFERO GENERAL PUBLIC LICENSE for more details.                                                                              
- *                                                                                                                                  
- * You should have received a copy of the GNU Lesser General Public                                                                 
- * License along with this library.  If not, see <http://www.gnu.org/licenses/>.                                                    
- *                                                                                                                                  
+/*
+ * files_compress, ownCloud archive handling app
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU AFFERO GENERAL PUBLIC LICENSE for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 OCP\JSON::checkLoggedIn();
@@ -36,18 +36,6 @@ if (OCP\App::isEnabled('files_compress')) {
     if ($mime === 'zip' || $mime === 'gz' || $mime === 'tgz' || $mime === 'tar' || $mime === 'bz2') {
         $phar = new PharData($archive_dir . $filename);
         if ($phar->extractTo($extract_dir, null, true)) {
-            $success = TRUE;
-        }
-    } elseif ($mime === 'rar') {
-        $rar_file = rar_open($archive_dir . $filename);
-        if ($rar_file) {
-            $list = rar_list($rar_file);
-            foreach ($list as $file) {
-                $entry = rar_entry_get($rar_file, $file);
-                $entry->extract($extract_dir);
-            }
-            rar_close($rar_file);
-            
             $success = TRUE;
         }
     }
