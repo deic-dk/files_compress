@@ -6,6 +6,13 @@
     <licence>AGPL</licence>
     <author>Lars Næsbye Christensen</author>
     <version>0.0.1</version>
+    <website>https://github.com/deic-dk/files_compress</website>
+    <bugs>https://github.com/deic-dk/files_compress/issues</bugs>
+    <repository type="git">http://github.com/deic-dk/files_compress.git</repository>
+    <documentation>
+        <user>https://github.com/deic-dk/files_compress/wiki</user>
+        <admin>https://github.com/deic-dk/files_compress/wiki</admin>
+    </documentation>
     <requiremin>7</requiremin>
     <category>tools</category>
     <types>
