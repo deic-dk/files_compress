@@ -27,7 +27,8 @@ if (OCP\App::isEnabled('files_compress')) {
     $tank_dir       = "/tank/data/owncloud/";
     $user_dir       = $tank_dir . $user . "/";
     $temp_dir       = $user_dir . "fc_tmp/";
-    $archive_dir    = $user_dir . "files" . $dir . "/";
+
+    $archive_dir    = str_replace("//", "/", $user_dir . "files" . $dir . "/");
     $compress_entry = $archive_dir . $filename;
     
     $tempfile = $temp_dir . $filename . '.gz';
