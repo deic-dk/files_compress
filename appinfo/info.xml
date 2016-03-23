@@ -4,7 +4,7 @@
     <name>Files Compress</name>
     <description>Archive compression and decompression</description>
     <licence>AGPL</licence>
-    <author>Lars Næsbye Christensen</author>
+    <author>Lars Næsbye Christensen, DeIC</author>
     <version>0.0.1</version>
     <website>https://github.com/deic-dk/files_compress</website>
     <bugs>https://github.com/deic-dk/files_compress/issues</bugs>
@@ -14,6 +14,9 @@
         <admin>https://github.com/deic-dk/files_compress/wiki</admin>
     </documentation>
     <requiremin>7</requiremin>
+    <dependencies>
+        <owncloud min-version="7.0" max-version="9.0"/>
+    </dependencies>
     <category>tools</category>
     <types>
         <filesystem/>
