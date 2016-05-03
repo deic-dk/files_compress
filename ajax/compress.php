@@ -74,9 +74,9 @@ if (OCP\App::isEnabled('files_compress')) {
     $success = file_exists($tarfile);
     
     if ($success) {
-        OCP\JSON::success();
+        OCP\JSON::success(); //FIXME: deprecated in 8.1: Use a AppFramework JSONResponse instead
     } else {
-        OCP\JSON::error();
+        OCP\JSON::error(); //FIXME: deprecated in 8.1: Use a AppFramework JSONResponse instead
     }
     
 }
