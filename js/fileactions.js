@@ -66,7 +66,7 @@
 
         	}
         	// Add action to top bar (visible when files are selected)
-        	$('#app-content-files #headerName .selectedActions').prepend(
+        	$('#headerName .selectedActions').prepend(
         		'<a class="tag btn btn-xs btn-default" id="tag" href=""><i class="icon icon-compress"></i>' + t('files_compress', ' Compress') + '</a>&nbsp;');
 
         });
