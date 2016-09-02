@@ -21,62 +21,96 @@
 OCP\JSON::checkLoggedIn();
 
 if (OCP\App::isEnabled('files_compress')) {
-                $filename = $_POST["filename"];
-                $dir      = $_POST["dir"];
-                $user     = \OCP\USER::getUser();
-                $tank_dir = "/tank/data/owncloud/";
-                $user_dir = $tank_dir . $user . "/";
-                $temp_dir = $user_dir . "fc_tmp/";
-                
-                $archive_dir    = str_replace("//", "/", $user_dir . "files" . $dir . "/");
-                $compress_entry = $archive_dir . $filename;
-                
-                $tempfile = $temp_dir . $filename . '.gz';
-                $tarfile  = $compress_entry . '.gz';
-                
-                $success = FALSE;
-                
-                // we should do our dirty work in a tempdir
-                if (!file_exists($temp_dir)) {
-                                mkdir($temp_dir);
+        $filename = $_POST["filename"];
+        $dir      = $_POST["dir"];
+        $user     = \OCP\USER::getUser();
+        $tank_dir = "/tank/data/owncloud/";
+        $user_dir = $tank_dir . $user . "/";
+        $temp_dir = $user_dir . "fc_tmp/";
+        $ext      =  ".zip";
+
+        $archive_dir    = str_replace("//", "/", $user_dir . "files" . $dir . "/");
+        $compress_entry = $archive_dir . $filename;
+        
+        $tempfile = $temp_dir . $filename . $ext;
+
+        $zipfile  = $compress_entry . $ext;
+        
+        $success = FALSE;
+        
+        // we should do our dirty work in a tempdir
+        if (!file_exists($temp_dir)) {
+                mkdir($temp_dir);
+        }
+        $compress_entry      = $compress_entry;
+
+        $zip = new ZipArchive();
+        $zip->open($tempfile, ZipArchive::CREATE);
+
+        if (is_dir($compress_entry) === true) {
+
+                $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($compress_entry), RecursiveIteratorIterator::SELF_FIRST);
+
+                if ($temp_dir) {
+
+                    $arr = explode(DIRECTORY_SEPARATOR, $compress_entry);
+                    $maindir = $arr[count($arr)- 1];
+
+                    $compress_entry = "";
+                    for ($i=0; $i < count($arr) - 1; $i++) {
+                        $compress_entry .= DIRECTORY_SEPARATOR . $arr[$i];
+                    }
+
+                    $compress_entry = substr($compress_entry, 1);
+
+                    $zip->addEmptyDir($maindir);
+
                 }
-                
-                
-                $phar = new PharData($tempfile);
-                
-                if (is_dir($compress_entry)) {
-                                $phar->buildFromDirectory($compress_entry);
-                } else {
-                                $phar->addFile($compress_entry);
+
+                foreach ($files as $file) {
+                    // Ignore "." and ".." folders
+                    if( in_array(substr($file, strrpos($file, '/')+1), array('.', '..')) )
+                        continue;
+
+                    $file = realpath($file);
+
+                    if (is_dir($file) === true) {
+                        $zip->addEmptyDir(str_replace($compress_entry . DIRECTORY_SEPARATOR, '', $file . DIRECTORY_SEPARATOR));
+                    } else if (is_file($file) === true) {
+                        $zip->addFromString(str_replace($compress_entry . DIRECTORY_SEPARATOR, '', $file), file_get_contents($file));
+                    }
                 }
-                
-                $phar->compress(Phar::GZ);
-                
-                // move everything in place
-                rename($tempfile, $tarfile);
-                
-                // cleanup by deleting all files and temp directory
-                
-                $files = glob($temp_dir . '{,.}*', GLOB_BRACE);
-                foreach ($files as $file) { // iterate files
-                                if (is_file($file)) {
-                                                unlink($file);
-                                } // delete file
-                }
-                
-                if (file_exists($temp_dir)) {
-                                rmdir($temp_dir);
-                }
-                
-                
-                // success is determined by .gz file in proper place
-                
-                $success = file_exists($tarfile);
-                
-                if ($success) {
-                                OCP\JSON::success();
-                } else {
-                                OCP\JSON::error();
-                }
-                
+            }
+            else if (is_file($compress_entry) === true) {
+                $zip->addFromString(basename($compress_entry), file_get_contents($compress_entry));
+            }
+
+
+        $zip->close();
+
+        // move everything in place
+        rename($tempfile, $zipfile);
+        
+        // cleanup by deleting all files and temp directory
+        
+        $files = glob($temp_dir . '{,.}*', GLOB_BRACE);
+        foreach ($files as $file) { // iterate files
+                if (is_file($file)) {
+                        unlink($file);
+                } // delete file
+        }
+        
+        if (file_exists($temp_dir)) {
+                rmdir($temp_dir);
+        }
+        
+        // success is determined by .zip file in proper place
+        
+        $success = file_exists($zipfile);
+
+        if ($success) {
+                        OCP\JSON::success();
+        } else {
+                        OCP\JSON::error();
+        }
 }
