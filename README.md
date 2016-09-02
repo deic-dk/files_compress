@@ -2,6 +2,7 @@
 An app for handling archive files within ownCloud.
 
 Written 2016 by Lars Næsbye Christensen, DeIC
+
 2016 September: Work continued by Kasper Sort, DeIC
 
 ## Dependencies 
