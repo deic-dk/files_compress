@@ -66,7 +66,11 @@
 
         	}
         	// Add action to top bar (visible when files are selected)
-        	$('#headerName .selectedActions').prepend(
-        		'<a class="tag btn btn-xs btn-default" id="tag" href=""><i class="icon icon-compress"></i>' + t('files_compress', ' Compress') + '</a>&nbsp;');
+        	/*if(!$('.nav-sidebar li[data-id="sharing_in"] a.active').length &&
+        			!$('.nav-sidebar li[data-id="trash"] a.active').length &&
+        			(typeof OCA.Files !== 'undefined' && OCA.Files.FileList.prototype.getGetParam('view')!='trashbin')){
+          	$('#headerName .selectedActions').prepend(
+            		'<a class="compress btn btn-xs btn-default" id="compress" href=""><i class="icon icon-compress"></i>' + t('files_compress', ' Compress') + '</a>&nbsp;');
+        	}*/
 
         });
