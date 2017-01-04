@@ -21,96 +21,91 @@
 OCP\JSON::checkLoggedIn();
 
 if (OCP\App::isEnabled('files_compress')) {
-        $filename = $_POST["filename"];
-        $dir      = $_POST["dir"];
-        $user     = \OCP\USER::getUser();
-        $tank_dir = "/tank/data/owncloud/";
-        $user_dir = $tank_dir . $user . "/";
-        $temp_dir = $user_dir . "fc_tmp/";
-        $ext      =  ".zip";
+		$filename  = $_POST["filename"];
+		$dir       = $_POST["dir"];
+		$user      = \OCP\USER::getUser();
 
-        $archive_dir    = str_replace("//", "/", $user_dir . "files" . $dir . "/");
-        $compress_entry = $archive_dir . $filename;
-        
-        $tempfile = $temp_dir . $filename . $ext;
+		/* Directories to use */
+		$tank_dir  = \OCP\Config::getSystemValue('datadirectory',1);
+		$user_dir  = $tank_dir . "/" . $user . "/";
+		$files_dir = $user_dir . "/files"; 
+		$temp_dir  = $user_dir . "fc_tmp/";
+        $archive_dir    = str_replace("//", "/", $files_dir  . $dir . "/");
 
-        $zipfile  = $compress_entry . $ext;
-        
-        $success = FALSE;
-        
-        // we should do our dirty work in a tempdir
-        if (!file_exists($temp_dir)) {
-                mkdir($temp_dir);
+		$ext       =  ".zip";
+		$mime	   = strtolower(pathinfo($filename, PATHINFO_EXTENSION)); 
+		$mime_org  = pathinfo($filename, PATHINFO_EXTENSION); 
+
+		$pattern  = '/\((\d+)\)/i';
+		preg_match($pattern, $filename,$match);
+
+		$compress_entry = $archive_dir . $filename; // file name including path to files directory
+		$tempfile = $temp_dir . $filename . $ext; // archive name including path to temp directory
+		$zipfile  = $compress_entry . $ext; // archive name including path
+		
+		$success = FALSE;
+
+		/* we should do our dirty work in a tempdir */
+		if (!file_exists($temp_dir)) {
+			mkdir($temp_dir);
+		}
+
+		$dirlist = array();
+		$dirlist = scandir($compress_entry);
+
+		// Check if archive exists and create versioning if not
+		if (file_exists($zipfile)) {
+            $zipexists = TRUE;
+		} else {
+            $zipexists = FALSE;
         }
-        $compress_entry      = $compress_entry;
 
-        $zip = new ZipArchive();
-        $zip->open($tempfile, ZipArchive::CREATE);
+		$checkfile = file_exists($zipfile);
 
-        if (is_dir($compress_entry) === true) {
+		/* Check if file exists */
 
-                $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($compress_entry), RecursiveIteratorIterator::SELF_FIRST);
+		if (!$zipexists) {
 
-                if ($temp_dir) {
+			$tid1 = time();
+			$zipcmd = escapeshellcmd('/usr/local/bin/zip -r '.escapeshellarg($tempfile).' '.escapeshellarg($filename));
 
-                    $arr = explode(DIRECTORY_SEPARATOR, $compress_entry);
-                    $maindir = $arr[count($arr)- 1];
+			$cmd    = 'cd '.escapeshellarg($archive_dir).' && ';
 
-                    $compress_entry = "";
-                    for ($i=0; $i < count($arr) - 1; $i++) {
-                        $compress_entry .= DIRECTORY_SEPARATOR . $arr[$i];
-                    }
+			if (exec($cmd . $zipcmd)) {
+				$success = TRUE;
+			} else {
 
-                    $compress_entry = substr($compress_entry, 1);
-
-                    $zip->addEmptyDir($maindir);
-
-                }
-
-                foreach ($files as $file) {
-                    // Ignore "." and ".." folders
-                    if( in_array(substr($file, strrpos($file, '/')+1), array('.', '..')) )
-                        continue;
-
-                    $file = realpath($file);
-
-                    if (is_dir($file) === true) {
-                        $zip->addEmptyDir(str_replace($compress_entry . DIRECTORY_SEPARATOR, '', $file . DIRECTORY_SEPARATOR));
-                    } else if (is_file($file) === true) {
-                        $zip->addFromString(str_replace($compress_entry . DIRECTORY_SEPARATOR, '', $file), file_get_contents($file));
-                    }
-                }
-            }
-            else if (is_file($compress_entry) === true) {
-                $zip->addFromString(basename($compress_entry), file_get_contents($compress_entry));
             }
 
+			$tid2 = time();
+			$tid = $tid2 - $tid1;
 
-        $zip->close();
+			// move everything in place
+				
+			$return = rename($tempfile, $zipfile);
 
-        // move everything in place
-        rename($tempfile, $zipfile);
-        
-        // cleanup by deleting all files and temp directory
-        
-        $files = glob($temp_dir . '{,.}*', GLOB_BRACE);
-        foreach ($files as $file) { // iterate files
-                if (is_file($file)) {
-                        unlink($file);
-                } // delete file
-        }
-        
-        if (file_exists($temp_dir)) {
-                rmdir($temp_dir);
-        }
-        
-        // success is determined by .zip file in proper place
-        
-        $success = file_exists($zipfile);
+			// cleanup by deleting all files and temp directory
+			$files = glob($temp_dir . '{,.}*', GLOB_BRACE);
+			foreach ($files as $file) { // iterate files
+					if (is_file($file)) {
+							unlink($file);
+					} // delete file
+			}
+			
+			if (file_exists($temp_dir)) {
+				rmdir($temp_dir);
+			}
+			
+			// success is determined by .zip file in proper place
+			$success = file_exists($zipfile);
+		} else {
+			$success = FALSE;
+			$explain = array('message'=>'Archive file exists!');
+		}
+		if ($success == TRUE) {
+			OCP\JSON::success();
+		} else {
+			OCP\JSON::error($explain);
+		} 
 
-        if ($success) {
-                        OCP\JSON::success();
-        } else {
-                        OCP\JSON::error();
-        }
 }
