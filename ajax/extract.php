@@ -34,14 +34,27 @@ if (OCP\App::isEnabled('files_compress')) {
 	$mime          = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 	
 	$archive_dir = $tank_dir . "/" . $user . "/files" . $dir . "/";
-	$archive_dir    = str_replace("//", "/", $archive_dir);
+	$archive_dir = str_replace("//", "/", $archive_dir);
 	$extract_dir = $archive_dir . $filenameWOext . "/";
+	$newdest     = $archive_dir . $filenameWOext;
 	$temp_file   = $temp_dir . $filenameWOext;
-
+	$ziparchive = $archive_dir . $filename; // Archive to extract
 
 	$success = FALSE;
+	$buffer_size = 8192; // buffer for extraction
 
-	if ($mime === 'zip' || $mime === 'gz' || $mime === 'tgz' || $mime === 'tar' || $mime === 'bz2') {
+	// find tar.gz file
+
+	$pattern  = '/\.(tgz$)|(tar\.gz$)/i';
+	preg_match($pattern, $filename,$match);
+
+	foreach ($match as $key => $value) {
+		if ($value == 'tar.gz') {
+			$mime = 'tar.gz';
+			# code...
+		}
+	}
+	if ($mime === 'zip' || $mime === 'gz' || $mime === 'tgz' || $mime === 'tar' || $mime === 'bz2' || $mime = 'tar.gz') {
 
 			// we should do our dirty work in a tempdir
 			if (!file_exists($temp_dir)) {
@@ -66,19 +79,35 @@ if (OCP\App::isEnabled('files_compress')) {
 
 					$unzip->close();
 					break;
+				case 'tar.gz':
+					
+					$cmd = escapeshellcmd('/usr/bin/tar -xzf '.escapeshellarg($ziparchive).' -C '.escapeshellarg($temp_dir));
+					$tar_file = pathinfo($filenameWOext, PATHINFO_FILENAME);
+					$newdest = $archive_dir.$tar_file;
+					$temp_file = $temp_dir.$tar_file;
+
+					if (exec($cmd)) {
+						
+					}
+					break;
+				case 'tgz':
+					
+					$cmd = escapeshellcmd('/usr/bin/tar -xzf '.escapeshellarg($ziparchive).' -C '.escapeshellarg($temp_dir));
+
+					if (exec($cmd)) {
+						
+					}
+					break;
 				case 'gz':
-					//
-					
-					$ziparchive = $archive_dir . $filename;
-					
+	
 					$gz = gzopen($ziparchive, "rb");
 
-					// temp destination file
+					// temp destination file in binary mode
 					$ds = fopen($temp_file, "wb");
 
 					if($ds){
 						while (!gzeof($gz)) {
-							fwrite($ds, gzread($gz, 4096));
+							fwrite($ds, gzread($gz, $buffer_size));
 						}
 						$success = TRUE;
 					} else {
@@ -88,10 +117,50 @@ if (OCP\App::isEnabled('files_compress')) {
 					gzclose($gz);
 					fclose($ds);
 
+					if (is_file($temp_file)) {
+						# code...
+					}
+					
+					// decompress from gz
+					/* Prøv med Phar igen, når den kan installeres
+					$p = new PharData($ziparchive);
+					$p->decompress(); // creates /path/to/my.tar
+					*/
 					$tid2 = time();
 					$tid = $tid2-$tid1;
-					
-					break;    
+					break; 
+				case 'bz2':
+					$bz = bzopen($ziparchive, "r") or die("Couldn't open $ziparchive for reading");
+
+
+					//$bz = bzopen($ziparchive, "rb");
+					$ds = fopen($temp_file, "wb");
+
+					if ($ds) {
+						while (!feof($bz)) {
+							fwrite($ds, bzread($bz, $buffer_size));
+						}
+						$success = TRUE;
+					} else {
+						$success = FALSE;
+					}
+					bzclose($bz);
+					fclose($ds);
+					$tid2 = time();
+					$tid = $tid2-$tid1;
+					break;
+				case 'tar':
+					$cdcmd  = 'cd '.escapeshellarg($temp_dir).' && ';
+					$tarcmd = '/usr/bin/tar xf';
+
+					// untar to temp dir
+					$cmd = escapeshellcmd('/usr/bin/tar xf '.escapeshellarg($ziparchive).' -C '.escapeshellarg($temp_dir));
+					if (exec($cmd)) {
+						
+					}
+					$tid2 = time();
+					$tid = $tid2-$tid1;
+					break;
 				default:
 					# code...
 					break;
@@ -100,9 +169,7 @@ if (OCP\App::isEnabled('files_compress')) {
 
 			/* Move the files to correct path */
 			if (is_dir($temp_file) === true) {
-
-				$mvcmd = escapeshellcmd("mv ".$temp_file.' '.$archive_dir);
-
+				$mvcmd = escapeshellcmd("mv ".escapeshellarg($temp_file).' '.escapeshellarg($archive_dir));
 			} else {
 				$extract_dir = rtrim($extract_dir, "/");
 			}
@@ -110,33 +177,39 @@ if (OCP\App::isEnabled('files_compress')) {
 
 			// cleanup by deleting all files and temp directory
 			$files = glob($temp_dir . '{,.}*', GLOB_BRACE);
+			if (is_file($temp_file)) {
+			
+				foreach ($files as $file) { // iterate files
+					if( in_array(substr($file, strrpos($file, '/')+1), array('.', '..')) ) {
+						continue;
+					}
+						
+					if (is_file($file)) {
+						//unlink($file);
+					} else { // delete file
+						$p2 = '/(\.)|(\.\.)/';
+					}
 
-			foreach ($files as $file) { // iterate files
-				if( in_array(substr($file, strrpos($file, '/')+1), array('.', '..')) ) {
-					continue;
-				}
+					$mvcmd = escapeshellcmd("mv ".escapeshellarg($file).' '.escapeshellarg($archive_dir));
 					
-				if (is_file($file)) {
-					//unlink($file);
-				} else { // delete file
-					$p2 = '/(\.)|(\.\.)/';
-				}
+					if (exec($mvcmd)) {
+						$success = TRUE;
+					}
 
-				$mvcmd = escapeshellcmd("mv ".escapeshellarg($file).' '.escapeshellarg($archive_dir));
-		   
+				}
+			} else {
 				if (exec($mvcmd)) {
 					$success = TRUE;
 				}
-
-		}
-
+			}
+	
+		$success = file_exists($newdest);
 
 		// cleanup by deleting temp directory
 		if (file_exists($temp_dir)) {
 			rmdir($temp_dir);
 		}
 	}        
-
 
 	if ($success) {
 			OCP\JSON::success();
