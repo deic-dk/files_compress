@@ -21,244 +21,158 @@
 OCP\JSON::checkLoggedIn();
 
 if (OCP\App::isEnabled('files_compress')) {
-	$filename = $_POST["filename"];
-	$dir      = $_POST["dir"];
-	$user     = \OCP\USER::getUser();
-	$tank_dir = \OCP\Config::getSystemValue('datadirectory',1);
+                $filename = $_POST["filename"];
+                $dir      = $_POST["dir"];
+                $user     = \OCP\USER::getUser();
+                $tank_dir = \OCP\Config::getSystemValue('datadirectory',1);
 
-	$user_dir = $tank_dir . "/" . $user . "/";
-	$temp_dir = $user_dir . "fc_tmp/";
+                $user_dir = $tank_dir . "/" . $user . "/";
+                $temp_dir = $user_dir . "fc_tmp/";
 
-	/* Archive name */
-	$filenameWOext = pathinfo($filename, PATHINFO_FILENAME);
-	$mime          = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-	
-	$archive_dir = $tank_dir . "/" . $user . "/files" . $dir . "/";
-	$archive_dir = str_replace("//", "/", $archive_dir);
-	$extract_dir = $archive_dir . $filenameWOext . "/";
-	$newdest     = $archive_dir . $filenameWOext;
-	$temp_file   = $temp_dir . $filenameWOext;
-	$ziparchive = $archive_dir . $filename; // Archive to extract
+                /* Archive name */
+                $filenameWOext = pathinfo($filename, PATHINFO_FILENAME);
+                $mime          = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                
+                $archive_dir = $tank_dir . "/" . $user . "/files" . $dir . "/";
+                $archive_dir    = str_replace("//", "/", $archive_dir);
+                $extract_dir = $archive_dir . $filenameWOext . "/";
+                $temp_file   = $temp_dir . $filenameWOext;
 
-	$success = FALSE;
-	$buffer_size = 8192; // buffer for extraction
+                $tid = "";
+                
+                $sti = "/tank/data/tmp";
+                $fh = fopen($sti."/extract.log", 'a');
 
-	// for debugging - remove
-	$sti = "/tank/data/tmp";
-	$fh = fopen($sti."/compress.log", 'a');
+                $success = FALSE;
 
-	// find tar.gz file
-	$pattern  = '/\.(tgz$)|(tar\.gz$)/i';
-	preg_match($pattern, $filename,$match);
+                if ($mime === 'zip' || $mime === 'gz' || $mime === 'tgz' || $mime === 'tar' || $mime === 'bz2') {
 
-	foreach ($match as $key => $value) {
-		if ($value == 'tar.gz') {
-			$mime = 'tar.gz';
-		}
-	}
+                        // we should do our dirty work in a tempdir
+                        if (!file_exists($temp_dir)) {
+														fwrite($fh, 'Creating directory '.$temp_dir."\n");
+                            mkdir($temp_dir) || die('Could not create '.$temp_dir);
+                        }
+                        $tid1 = time();
+                        // Which mimetype to use
+                        switch ($mime) {
+                                case 'zip':
+                                    $unzip = new ZipArchive();
+                                    
+                                    // check if we can open archive
+                                    $ziparchive =  $archive_dir . $filename;
 
-	if ($mime === 'zip' || $mime === 'gz' || $mime === 'tgz' || $mime === 'tar' || $mime === 'bz2' || $mime = 'tar.gz') {
+                                    /* open archive */
+                                    if ($unzip->open($ziparchive) === TRUE) {
+                                        // unzip if archive is open
+                                        $success = $unzip->extractTo($temp_dir);        
+                                    } else {
+                                        $success = FALSE;
+                                    }
 
-			// we should do our dirty work in a tempdir
-			if (!file_exists($temp_dir)) {
-				mkdir($temp_dir) || die('Could not create '.$temp_dir);
-			}
-			$tid1 = time();
-			// Which mimetype to use
-			switch ($mime) {
-				case 'zip':
-					$unzip = new ZipArchive();
-					
-					$b64_tmpfile = base64_encode($filenameWOext);
-					$ziparchive =  $archive_dir . $filename;
+                                    $tid2 = time();
+                                    $tid = $tid2-$tid1;
+                                    fwrite($fh, "UNZIP:: ".$temp_dir." # $success :: $tid secs.\n");
+                                    $unzip->close();
+                                    break;
+                                case 'gz':
+                                    //
+                                    
+                                    $ziparchive = $archive_dir . $filename;
+                                    
+                                    //$gunzipcmd = 'gunzip -c '.$ziparchive.' > '.$temp_dir;
 
-					// check if we can open archive
-					/* open archive */
-					if ($unzip->open($ziparchive) === TRUE) {
-						// unzip if archive is open
-						$success = $unzip->extractTo($temp_dir);
-					} else {
-						$success = FALSE;
-					}
-					$unzip->close();
-					break;
+                                    //if (exec(escapeshellcmd($gunzipcmd))) { $success = 1; error_log($gunzipcmd); }
 
-				case 'tar.gz':
-					
-					$cmd = escapeshellcmd('/usr/bin/tar -xzf '.escapeshellarg($ziparchive).' -C '.escapeshellarg($temp_dir));
-					$tar_file = pathinfo($filenameWOext, PATHINFO_FILENAME);
-					$newdest = $archive_dir.$tar_file;
-					$temp_file = $temp_dir.$tar_file;
+                                    $gz = gzopen($ziparchive, "rb");
+                                    //$content = gzread($ziparchive, 250000);
 
-					if (exec($cmd)) {
-						
-					}
-					break;
-				case 'tgz':
-					
-					$cmd = escapeshellcmd('/usr/bin/tar -xzf '.escapeshellarg($ziparchive).' -C '.escapeshellarg($temp_dir));
+                                    fwrite($fh, "GUNZIP:: ".$temp_file."\n");
 
-					if (exec($cmd)) {
-						
-					}
-					break;
-				case 'gz':
-	
-					$gz = gzopen($ziparchive, "rb");
+                                    // temp destination file
+                                    $ds = fopen($temp_file, "wb");
+                                    
+														if($ds){
+															while (!gzeof($gz)) {
+																fwrite($ds, gzread($gz, 4096));
+															}
+															$success = TRUE;
+														} else {
+															$success = FALSE;
+															fwrite($fh, "GUNZIP:: Could not write to ".$temp_file."\n");
+														}
 
-					// temp destination file in binary mode
-					$ds = fopen($temp_file, "wb");
+                                    gzclose($gz);
+                                    fclose($ds);
 
-					if($ds){
-						while (!gzeof($gz)) {
-							fwrite($ds, gzread($gz, $buffer_size));
-						}
-						$success = TRUE;
-					} else {
-						$success = FALSE;
-					}
-
-					gzclose($gz);
-					fclose($ds);
-
-					if (is_file($temp_file)) {
-						# code...
-					}
-					
-					// decompress from gz
-					/* Prøv med Phar igen, når den kan installeres
-					$p = new PharData($ziparchive);
-					$p->decompress(); // creates /path/to/my.tar
-					*/
-					break; 
-				case 'bz2':
-					$bz = bzopen($ziparchive, "r") or die("Couldn't open $ziparchive for reading");
+                                    $tid2 = time();
+                                    $tid = $tid2-$tid1;
+                                    fwrite($fh, "GUNZIP:: ".$temp_dir." # $success :: $tid secs.\n");
+                                    
+                                    break;    
+                                default:
+                                    # code...
+                                    break;
+                        }
 
 
-					//$bz = bzopen($ziparchive, "rb");
-					$ds = fopen($temp_file, "wb");
+                        /* Move the files to correct path */
+                        if (is_dir($temp_file) === true) {
 
-					if ($ds) {
-						while (!feof($bz)) {
-							fwrite($ds, bzread($bz, $buffer_size));
-						}
-						$success = TRUE;
-					} else {
-						$success = FALSE;
-					}
-					bzclose($bz);
-					fclose($ds);
-					$tid2 = time();
-					$tid = $tid2-$tid1;
-					break;
-				case 'tar':
-					$cdcmd  = 'cd '.escapeshellarg($temp_dir).' && ';
-					$tarcmd = '/usr/bin/tar xf';
+                            $mvcmd = escapeshellcmd("mv ".$temp_file.' '.$archive_dir);
+            
+                        } else {
+                            $extract_dir = rtrim($extract_dir, "/");
+                        }
 
-					// untar to temp dir
-					$cmd = escapeshellcmd('/usr/bin/tar xf '.escapeshellarg($ziparchive).' -C '.escapeshellarg($temp_dir));
-					if (exec($cmd)) {
-						
-					}
-					$tid2 = time();
-					$tid = $tid2-$tid1;
-					break;
-				default:
-					# code...
-					break;
-			}
-			$tid2 = time();
-			$tid = $tid2-$tid1;
+ 
+                        // cleanup by deleting all files and temp directory
+                        $files = glob($temp_dir . '{,.}*', GLOB_BRACE);
 
+                        foreach ($files as $file) { // iterate files
+                            if( in_array(substr($file, strrpos($file, '/')+1), array('.', '..')) ) {
+                                continue;
+                            }
+                                
+                            if (is_file($file)) {
+                                
+                                //$test = $archive_dir.$path[count($path)-1];
+                                //$test = escapeshellarg($test);
+                                //unlink($file);
+                            } else { // delete file
+                                $p2 = '/(\.)|(\.\.)/';
+                        /*
+                                if (preg_match($p2, $file, $match)) {
+                                    fwrite($fh, "DIR OUT:: $file\nREGEX: $file\n###############\n");
+                                } else {
+                                    //$success = rename($file, $archive_dir);
+                                    fwrite($fh, "DIR IN:: $file\nTMP_FILE: $temp_file\nARCHIVE_DIR: $archive_dir\nSUCCESS: $success###############\n\n");
+                                }
+                                */
+                            }
 
-
-			// Findes filen eller noget der ligner
-			
-			$dirlist = array();
-			$dirlist = scandir($temp_dir);
-			$versioning = array();
-			$matchfile  = array();
-			$versionNumber = 0;
-			
-			foreach ($dirlist as $key => $file) {
-					if( in_array(substr($file, strrpos($file, '/')+1), array('.', '..')) ) {
-						continue;
-					}
-				//$pattern  = '/^('.$file_parts[0].')/i';
-				//if (preg_match($pattern, $value, $m)) {
-					//fwrite($fh, "FILE: $value\n\n");
-					//$dir = rtrim($archive_dir,'/');
-					$target = OCP\Files::buildNotExistingFileName(stripslashes($dir), $file);
-					//fwrite($fh, "TARGET: $file::$target\n".stripslashes($dir)."\n");
-					OCP\Util::writeLog("files_compress", "B: $target::$file::$dir", \OC_Log::ERROR);
-					//array_push($matchfile, $value);
-				//}
-			}
+                            $mvcmd = escapeshellcmd("mv ".escapeshellarg($file).' '.escapeshellarg($archive_dir));
+                       
+                            if (exec($mvcmd)) {
+                                $success = TRUE;
+                            }
+ 
+                    }
 
 
-
-			/* Move the files to correct path */
-			if (is_dir($temp_file) === true) {
-				$target = OCP\Files::buildNotExistingFileName(stripslashes($dir), $temp_file);
-				fwrite($fh, "FILE: ".$temp_file."\nNEW FILE: $target\n######\n");
-				$mvcmd = escapeshellcmd("mv ".escapeshellarg($temp_file).' '.escapeshellarg($archive_dir));
-
-				$mvfiles = 1;
-			} else {
-				$extract_dir = rtrim($extract_dir, "/");
-				$mvfiles = 1;
-			}
+                    // cleanup by deleting temp directory
+                    if (file_exists($temp_dir)) {
+                        //rmdir($temp_dir);
+                    }
+                }        
 
 
-			// cleanup by deleting all files and temp directory
-			//$files = glob($temp_dir . '{,.}*', GLOB_BRACE);
-			$files = scandir($temp_dir);
-
-			if ($mvfiles === 1) {
-
-				foreach ($files as $file) { // iterate files
-					// Skip '.' and '..'
-					if( in_array(substr($file, strrpos($file, '/')+1), array('.', '..')) ) {
-						continue;
-					}
-					$dir = rtrim($dir,'/');
-					$archive_dir = rtrim($archive_dir,'/');
-					$target = OCP\Files::buildNotExistingFileName(stripslashes($dir), $file);
-
-					//$mvcmd = escapeshellcmd("mv ".escapeshellarg($file).' '.escapeshellarg($archive_dir.stripslashes($target)));
-					$newdest = $archive_dir.stripslashes($target);
-					fwrite($fh, "FILE: ".$file."\nNEW FILE: $newdest\n######\n");
-
-					rename($temp_dir.$file, $newdest);
-					/*if (exec($mvcmd)) {
-						$success = TRUE;
-					}
-*/
-					if (is_file($file)) {
-						//unlink($file);
-					} else { // delete file
-						$p2 = '/(\.)|(\.\.)/';
-					}
-				
-				}
-			} else {
-				if (exec($mvcmd)) {
-					$success = TRUE;
-				}
-			}
-	
-		// $success = file_exists($newdest);
-
-		// cleanup by deleting temp directory
-		if (file_exists($temp_dir)) {
-			rmdir($temp_dir);
-		}
-	}        
-
-	if ($success) {
-			OCP\JSON::success();
-	} else {
-			OCP\JSON::error();
-	}
+                if ($success) {
+                        fwrite($fh, "SUCCESS :: $success\n");
+                        OCP\JSON::success();
+                } else {
+                        OCP\JSON::error();
+                        fwrite($fh, "LOOP: FEJL :: $success\n");
+                }
+                fclose($fh);
 } 
 
