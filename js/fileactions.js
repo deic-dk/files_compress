@@ -14,9 +14,10 @@
 						files_compress_throbber_hide();
 						FileList.reload();
 						
-					} else {
+					}
+					else {
 						files_compress_throbber_hide();
-						alert('Could not extract.');
+						OC.dialogs.alert(s.message, t('files_compress', 'Could not extract'));
 					}
 				},
 				error: function(s) {
@@ -40,10 +41,12 @@
 				success: function(s) {
 					if (s.status == "success") {
 						files_compress_throbber_hide();
-						FileList.reload();
-					} else {
+						//FileList.reload();
+						FileList.add(s.data, {hidden: false, animate: true});
+					}
+					else {
 						files_compress_throbber_hide();
-						alert('Could not compress: ' + s.message);
+						OC.dialogs.alert(s.message, t('files_compress', 'Could not compress'));
 					}
 				},
 				error: function(s) {
