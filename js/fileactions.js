@@ -12,8 +12,10 @@
 				success: function(s) {
 					if (s.status == "success") {
 						files_compress_throbber_hide();
-						FileList.reload();
-						
+						//FileList.reload();
+						for(var i=0; i<s.data.length; ++i){
+							FileList.add(s.data[i], {hidden: false, animate: true});
+						}
 					}
 					else {
 						files_compress_throbber_hide();
@@ -107,6 +109,10 @@
 					function(filename, context) {
 						files_compress_expand(filename, context)
 					});
+				FileActions.register('application/x-tar', t('files_compress', 'Extract'), OC.PERMISSION_READ, '',
+						function(filename, context) {
+							files_compress_expand(filename, context)
+						});
 
 				FileActions.register('all', t('files_compress', 'Compress'), OC.PERMISSION_READ, '',
 					function(filename, context) {

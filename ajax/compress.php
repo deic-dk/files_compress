@@ -7,8 +7,7 @@ OCP\App::checkAppEnabled('files_compress');
 $dirname = $_POST["filename"];
 $parentdir = $_POST["dir"];
 $user = \OCP\USER::getUser();
-
-$tank_dir = \OCP\Config::getSystemValue('datadirectory',1);
+$tank_dir = \OCP\Config::getSystemValue('datadirectory', '');
 $user_dir = $tank_dir . "/" . $user . "/";
 $files_dir = $user_dir . "/files"; 
 $temp_dir = $user_dir . "files_compress/";
@@ -50,7 +49,7 @@ else{
 }
 
 if(empty($err) && !empty($internalPath) && $storage){
-	\OCP\Util::writeLog('files_sharding', 'zipfile: '.$zipRelativeFile, \OC_Log::WARN);
+	\OCP\Util::writeLog('files_compress', 'zipfile: '.$zipRelativeFile, \OC_Log::WARN);
 	$meta = \OC\Files\Filesystem::getFileInfo($zipRelativeFile);
 	OCP\JSON::success(array('data' => \OCA\Files\Helper::formatFileInfo($meta)));
 }
