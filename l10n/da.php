@@ -6,6 +6,6 @@ $TRANSLATIONS = array(
 		'Could not compress' => 'Kunne ikke komprimere',
 		'Could not extract' => 'Kunne ikke ekstrahere',
 		'Compress' => 'Komprimer',
-		'Extract' => 'Ekstraher
+		'Extract' => 'Ekstraher'
 );
 $PLURAL_FORMS = "nplurals=2; plural=(n != 1);";
