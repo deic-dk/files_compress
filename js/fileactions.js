@@ -97,24 +97,24 @@
 		$(document).ready(function() {
 			if (typeof FileActions !== 'undefined') {
 
-				FileActions.register('application/zip', t('files_compress', 'Extract'), OC.PERMISSION_READ, '',
+				FileActions.register('application/zip',  'Extract', OC.PERMISSION_READ, '',
 					function(filename, context) {
 						files_compress_expand(filename, context)
 					});
-				FileActions.register('application/x-gzip', t('files_compress', 'Extract'), OC.PERMISSION_READ, '',
+				FileActions.register('application/x-gzip',  'Extract', OC.PERMISSION_READ, '',
 					function(filename, context) {
 						files_compress_expand(filename, context)
 					});
-				FileActions.register('application/x-compressed', t('files_compress', 'Extract'), OC.PERMISSION_READ, '',
+				FileActions.register('application/x-compressed',  'Extract', OC.PERMISSION_READ, '',
 					function(filename, context) {
 						files_compress_expand(filename, context)
 					});
-				FileActions.register('application/x-tar', t('files_compress', 'Extract'), OC.PERMISSION_READ, '',
+				FileActions.register('application/x-tar',  'Extract', OC.PERMISSION_READ, '',
 						function(filename, context) {
 							files_compress_expand(filename, context)
 						});
 
-				FileActions.register('all', t('files_compress', 'Compress'), OC.PERMISSION_READ, '',
+				FileActions.register('all',  'Compress', OC.PERMISSION_READ, '',
 					function(filename, context) {
 						files_compress_compress(filename, context);
 					});

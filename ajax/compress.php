@@ -59,6 +59,8 @@ else {
 
 // From https://stackoverflow.com/questions/1334613/how-to-recursively-zip-a-directory-in-php
 function zip($source, $destination){
+	set_time_limit(0);
+	ini_set("memory_limit", -1);
 	$zip = new ZipArchive();
 	if(!$zip->open($destination, ZIPARCHIVE::CREATE)){
 		return false;
@@ -77,12 +79,16 @@ function zip($source, $destination){
 				$zip->addEmptyDir(str_replace($source . '/', '', $file . '/'));
 			}
 			elseif(is_file($file)){
-				$zip->addFromString(str_replace($source . '/', '', $file), file_get_contents($file));
+				//$zip->addFromString(str_replace($source . '/', '', $file), file_get_contents($file));
+				\OCP\Util::writeLog('files_compress', 'Adding to zip: '.$file.'-->'.str_replace($source . '/', '', $file), \OC_Log::WARN);
+				$zip->addFile($file, str_replace($source . '/', '', $file));
 			}
 		}
 	}
 	elseif(is_file($source)){
-		$zip->addFromString(basename($source), file_get_contents($source));
+		//$zip->addFromString(basename($source), file_get_contents($source));
+		\OCP\Util::writeLog('files_compress', 'Adding to zip: '.$file.'-->'.str_replace($source . '/', '', $file), \OC_Log::WARN);
+		$zip->addFile($file, str_replace($source . '/', '', $file));
 	}
 	return $zip->close();
 }
