@@ -31,13 +31,17 @@
 
 		function files_compress_compress(filename, context) {
 			files_compress_throbber('Archiving file(s) ...');
-
+			var group = '';
+			if(typeof OCA.Files.App.fileList.getGroup !== 'undefined'){
+				group = OCA.Files.App.fileList.getGroup();
+			}
 			var dir = context.dir || context.fileList.getCurrentDirectory();
 			$.ajax(OC.linkTo('files_compress', 'ajax/compress.php'), {
 				type: 'POST',
 				data: {
 					filename: filename,
-					dir: dir
+					dir: dir,
+					gid: group
 				},
 				dataType: 'json',
 				success: function(s) {

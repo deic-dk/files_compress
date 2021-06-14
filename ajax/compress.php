@@ -6,10 +6,19 @@ OCP\App::checkAppEnabled('files_compress');
 
 $dirname = $_POST["filename"];
 $parentdir = $_POST["dir"];
+$group = $_POST["gid"];
 $user = \OCP\USER::getUser();
 $tank_dir = \OCP\Config::getSystemValue('datadirectory', '');
 $user_dir = $tank_dir . "/" . $user . "/";
-$files_dir = $user_dir . "/files"; 
+$files_dir = $user_dir . "/files";
+
+if(!empty($group)){
+	$group_dir = "/" . $user . "/user_group_admin/".$group;
+	\OC\Files\Filesystem::tearDown();
+	\OC\Files\Filesystem::init($user, $group_dir);
+	$files_dir = $user_dir . "/user_group_admin/".$group;
+}
+
 $temp_dir = $user_dir . "files_compress/";
 $ext = ".zip";
 $mime = strtolower(pathinfo($dirname, PATHINFO_EXTENSION)); 
@@ -35,11 +44,17 @@ elseif(!zip($full_path, $tempfile)){
 	$err = $l->t('Something went wrong');
 }
 // move archive in place
-elseif(!rename($tempfile, $zipfile)){
+elseif(!rename($tempfile, $zipfile)){$gid = isset($_GET['gid']) ? $_GET['gid'] : '';
+	
 	$err = $l->t('Zip file not found');
 }
 else{
-	$view = \OC\Files\Filesystem::getView();
+	if(!empty($group)){
+		$view = new \OC\Files\View($group_dir);
+	}
+	else{
+		$view = \OC\Files\Filesystem::getView();
+	}
 	$absPath = $view->getAbsolutePath($zipRelativeFile);
 	list($storage, $internalPath) = \OC\Files\Filesystem::resolvePath('/' . $absPath);
 	if($storage){
@@ -86,9 +101,11 @@ function zip($source, $destination){
 		}
 	}
 	elseif(is_file($source)){
+		$file = str_replace('\\', '/', $source);
+		$entryname = basename(dirname($file)).'/'.basename($file);
 		//$zip->addFromString(basename($source), file_get_contents($source));
-		\OCP\Util::writeLog('files_compress', 'Adding to zip: '.$file.'-->'.str_replace($source . '/', '', $file), \OC_Log::WARN);
-		$zip->addFile($file, str_replace($source . '/', '', $file));
+		\OCP\Util::writeLog('files_compress', 'Adding to zip: '.$file.'-->'.$entryname, \OC_Log::WARN);
+		$zip->addFile($file, $entryname);
 	}
 	return $zip->close();
 }
