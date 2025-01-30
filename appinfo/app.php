@@ -24,7 +24,7 @@ if(!isset($_SERVER['REQUEST_URI']) ||
 		strpos($_SERVER['REQUEST_URI'], OC::$WEBROOT ."/remote.php/")!==0 &&
 		strpos($_SERVER['REQUEST_URI'], OC::$WEBROOT ."/sharingin/")!==0 &&
 		strpos($_SERVER['REQUEST_URI'], OC::$WEBROOT ."/sharingout/")!==0 &&
-		strpos($_SERVER['REQUEST_URI'], OC::$WEBROOT ."/group/")!==0
+		strpos($_SERVER['REQUEST_URI'], OC::$WEBROOT ."/groupfolders/")!==0
 		){
 	\OCP\Util::addScript('files_compress', 'fileactions');
 }
